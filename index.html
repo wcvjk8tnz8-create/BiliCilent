@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiliPlus - 跨平台 Bilibili 第三方客户端</title>
+    <style>
+        :root {
+            /* 基础优雅明亮底色 */
+            --bg-base: #f4f6f9;
+            
+            /* 高透玻璃面板 */
+            --glass-bg: rgba(255, 255, 255, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.65);
+            --glass-highlight: rgba(255, 255, 255, 0.9);
+            
+            /* 高对比度文本 */
+            --text-primary: #18191c;
+            --text-secondary: #61666d;
+            --text-muted: #9499a0;
+            
+            /* 全新升级的科技绿与清新蓝氛围色 */
+            --accent-green: #10b981;
+            --accent-blue: #33bfe6;
+            --blur-strength: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 液态色彩背景 */
+        .liquid-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(80px);
+            opacity: 0.75;
+        }
+
+        .fluid-blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: fluid-flow 25s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            top: -100px;
+            right: -50px;
+            background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(255,255,255,0) 70%);
+        }
+
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            bottom: -100px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(51,191,230,0.3) 0%, rgba(255,255,255,0) 70%);
+        }
+
+        @keyframes fluid-flow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.05); }
+        }
+
+        /* 玻璃态容器 */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-strength));
+            -webkit-backdrop-filter: blur(var(--blur-strength));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 10px 35px rgba(24, 25, 28, 0.03);
+        }
+
+        /* 顶部导航栏 */
+        header {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: 90%;
+            max-width: 1200px;
+            height: 72px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 36px;
+            z-index: 1000;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .brand-logo img {
+            height: 34px;
+            width: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-green);
+        }
+
+        /* 导航栏按钮：改成绿色 */
+        .btn-action-nav {
+            padding: 10px 22px;
+            border-radius: 50px;
+            background: var(--text-primary);
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-action-nav:hover {
+            background: var(--accent-green);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        /* 页面主体 */
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 150px;
+        }
+
+        .hero-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 50px;
+            align-items: center;
+            padding-bottom: 80px;
+        }
+
+        .hero-content h1 {
+            font-size: 46px;
+            font-weight: 800;
+            line-height: 1.35;
+            margin-bottom: 24px;
+        }
+
+        .hero-content h1 span {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        /* 主下载大按钮：改成绿色渐变 */
+        .btn-main-download {
+            padding: 16px 36px;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-block;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-main-download:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        }
+
+        /* 🖥️ 暗黑模式平板模拟器 */
+        .mockup-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tablet-shell {
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 1.45;
+            background: #000000;
+            border-radius: 28px;
+            padding: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            display: grid;
+            grid-template-columns: 75px 1fr;
+            overflow: hidden;
+        }
+
+        /* 侧边导航栏 */
+        .tablet-sidebar {
+            background: #080808;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            justify-content: space-between;
+            border-right: 1px solid #141414;
+        }
+
+        /* 头像位置强制绑定 image_4.png */
+        .author-avatar-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-image: url('image_4.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .tablet-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .tablet-menu-item {
+            font-size: 11px;
+            color: #727272;
+            text-align: center;
+            padding: 8px 0;
+            width: 85%;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .tablet-menu-item.active {
+            color: #ffffff;
+            background: #11221a; /* 淡淡的暗绿灰色选中态 */
+        }
+
+        /* 模拟器主视窗内容 */
+        .tablet-main-screen {
+            background: #000000;
+            padding: 20px;
+            color: #ffffff;
+            overflow-y: auto;
+        }
+        .tablet-main-screen::-webkit-scrollbar { display: none; }
+
+        .profile-user-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* 主页大头像换成 image_4.png */
+        .profile-avatar-main {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-image: url('image_4.png');
+            background-size: cover;
+            border: 1px solid #2d2d2d;
+        }
+
+        /* 名字变更为开发者/项目名称 PiliPlus */
+        .profile-name-zone h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .profile-name-zone p {
+            font-size: 11px;
+            color: #727272;
+            margin-top: 4px;
+        }
+
+        /* 数据列 */
+        .profile-stats-row {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+        .stat-box { text-align: center; }
+        .stat-box .num { font-size: 14px; font-weight: bold; color: #ffffff; }
+        .stat-box .label { font-size: 11px; color: #727272; margin-top: 2px; }
+
+        /* 功能网格 */
+        .function-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .function-item {
+            background: #0c0c0c;
+            border: 1px solid #141414;
+            padding: 12px 5px;
+            text-align: center;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #cccccc;
+        }
+
+        /* 收藏夹区块 - 已修改为“暂无收藏” */
+        .favorites-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+        .fav-folder-placeholder {
+            background: #0c0c0c;
+            border-radius: 14px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666666;
+            border: 1px dashed #222;
+        }
+
+        /* 特性功能块 */
+        .features-layout {
+            padding: 40px 0 80px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            padding: 30px;
+        }
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        footer {
+            border-top: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px 0;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 968px) {
+            .nav-links { display: none; }
+            .hero-layout { grid-template-columns: 1fr; text-align: center; }
+            .hero-content h1 { font-size: 34px; }
+            .mockup-wrapper { margin-top: 20px; }
+            .profile-stats-row { justify-content: center; padding-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景色块 -->
+    <div class="liquid-layer">
+        <div class="fluid-blob blob-1"></div>
+        <div class="fluid-blob blob-2"></div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <header class="glass-panel">
+        <div class="brand-logo">
+            <img src="https://github.com/bggRGjQaUbCoE/PiliPlus/raw/main/assets/images/logo/logo.png" alt="PiliPlus Logo">
+            <span>PiliPlus</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#features">功能特性</a></li>
+            <li><a href="https://github.com/bggRGjQaUbCoE/PiliPlus" target="_blank">GitHub</a></li>
+        </ul>
+        <a href="https://github.com/bggRGjQaUbCoE/PiliPlus/releases" target="_blank" class="btn-action-nav">下载 Releases</a>
+    </header>
+
+    <div class="main-container">
+        
+        <!-- 主视觉区域 -->
+        <section class="hero-layout">
+            <div class="hero-content">
+                <h1>让影音体验<br>回归<span>纯粹与轻量</span></h1>
+                <p>PiliPlus 是一款基于 Flutter 开发的开源第三方 Bilibili 客户端。专为追求极简的极客打造，去除了臃肿的社交模块与开屏广告。全平台架构设计，还你最流畅、干净的观影享受。</p>
+                <a href="https://github.com/bggRGjQaUbCoE/PiliPlus/releases" target="_blank" class="btn-main-download">前往 GitHub 获取</a>
+            </div>
+            
+            <!-- 右侧模拟器 -->
+            <div class="mockup-wrapper">
+                <div class="tablet-shell">
+                    
+                    <!-- 侧边导航栏 -->
+                    <div class="tablet-sidebar">
+                        <div class="author-avatar-badge"></div>
+                        <div class="tablet-menu">
+                            <div class="tablet-menu-item">首页</div>
+                            <div class="tablet-menu-item">消息</div>
+                            <div class="tablet-menu-item active">我的</div>
+                        </div>
+                        <div style="height: 32px;"></div>
+                    </div>
+
+                    <!-- 主界面内容 -->
+                    <div class="tablet-main-screen">
+                        <div class="profile-user-row">
+                            <div class="profile-avatar-main"></div>
+                            <div class="profile-name-zone">
+                                <h3>PiliPlus_Developer</h3>
+                                <p>硬币: -- ｜ 经验值: --</p>
+                            </div>
+                        </div>
+
+                        <div class="profile-stats-row">
+                            <div class="stat-box"><div class="num">0</div><div class="label">动态</div></div>
+                            <div class="stat-box"><div class="num">0</div><div class="label">关注</div></div>
+                            <div class="stat-box"><div class="num">0</div><div class="label">粉丝</div></div>
+                        </div>
+
+                        <div class="function-grid">
+                            <div class="function-item">离线缓存</div>
+                            <div class="function-item">观看记录</div>
+                            <div class="function-item">我的订阅</div>
+                            <div class="function-item">稍后再看</div>
+                        </div>
+
+                        <div class="favorites-section-title">我的收藏</div>
+                        <!-- 直接显示暂无收藏 -->
+                        <div class="fav-folder-placeholder">
+                            <span>暂无收藏</span>
+                            <span>0 视频</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 特性功能板块 -->
+        <section id="features" class="features-layout">
+            <div class="feature-card glass-panel">
+                <h3>⚡ 顶级硬件解码</h3>
+                <p>支持自定义记忆播放、多种画质与高音质预设。具备滑动控制亮度、音量与双倍速等手势控制。</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>💬 弹幕优化互动</h3>
+                <p>全面支持动态弹幕过滤与超分辨率合并优化，移动端独家适配弹幕复制、点赞与悬停。</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>🔒 隐私与无痕模式</h3>
+                <p>拒绝大数据追踪。开启无痕模式后，所有的播放行为均不计入云端纪录，还你干净的推荐首页。</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2026 PiliPlus 开源项目 ｜ 头像图标版权归原作者所有</p>
+    </footer>
+
+</body>
+</html>
